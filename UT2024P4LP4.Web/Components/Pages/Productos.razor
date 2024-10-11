@@ -1,9 +1,92 @@
-﻿@page "/productos"
-@using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+﻿@rendermode InteractiveServer
+@page "/productos"
+@* @using Microsoft.AspNetCore.Authorization
+@attribute [Authorize] *@
 
 <h3>Productos</h3>
-
+@if (ShowForm)
+{
+    @* Formularion de accion*@
+    <div class="card">
+        <h5 class="card-header">@Accion producto</h5>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="email" class="form-control" id="nombre" placeholder="Nombre" disabled="@DisableInputs">
+            </div>
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción</label>
+                <textarea class="form-control" id="descripcion" rows="3" disabled="@DisableInputs"></textarea>
+            </div>
+            <span class="btn btn-primary">Aceptar</span>
+            <span class="btn btn-danger" @onclick="btnCancelarClick">Cancelar</span>
+        </div>
+    </div>
+}
+else
+{
+    @* Formularion de los registros*@
+    <div class="card mb-3 mt-3">
+        <div class="card-header">
+            <span class="btn btn-success" @onclick="btnAgregarClick">+</span>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>M</td>
+                        <td>
+                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                                <span @onclick="btnEditarClick" class="btn btn-outline-warning">Editar</span>
+                                <span @onclick="btnEliminarClick" class="btn btn-outline-danger">Eliminar</span>
+                                <span @onclick="btnVerClick" class="btn btn-outline-primary">Ver</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
 @code {
+    string Accion = "Registrar";
+    bool ShowForm = false, DisableInputs = false;
 
+    public void btnAgregarClick()
+    {
+        Accion = "Registrar"; 
+        ShowForm = true;
+        StateHasChanged(); 
+        DisableInputs = false;
+    }
+    public void btnEditarClick()
+    {
+        Accion = "Editar"; 
+        ShowForm = true; 
+        DisableInputs = false;
+    }
+    public void btnEliminarClick()
+    {
+        Accion = "Eliminar"; 
+        ShowForm = true;
+        DisableInputs = true;
+    }
+    public void btnVerClick()
+    {
+        Accion = "Ver"; 
+        ShowForm = true;
+        DisableInputs = true;
+    }
+    public void btnCancelarClick()
+    {
+        ShowForm = false;
+    }
 }
