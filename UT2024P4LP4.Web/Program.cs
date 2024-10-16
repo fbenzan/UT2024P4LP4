@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using UT2024P4LP4.Web.Components;
 using UT2024P4LP4.Web.Components.Account;
 using UT2024P4LP4.Web.Data;
+using UT2024P4LP4.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,8 +25,9 @@ builder.Services.AddAuthentication(options =>
     .AddIdentityCookies();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -34,7 +36,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-
+builder.Services.AddScoped<IProductoService,ProductoService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
