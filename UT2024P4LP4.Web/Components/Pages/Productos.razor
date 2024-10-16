@@ -1,8 +1,10 @@
 ﻿@rendermode InteractiveServer
 @page "/productos"
+@using UT2024P4LP4.Web.Data.Dtos
 @* @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize] *@
 
+@inject IProductoService service;
 <h3>Productos</h3>
 @if (ShowForm)
 {
@@ -12,13 +14,13 @@
         <div class="card-body">
             <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre</label>
-                <input type="email" class="form-control" id="nombre" placeholder="Nombre" disabled="@DisableInputs">
+                <input @bind-value="Nombre" type="text" class="form-control" id="nombre" placeholder="Nombre" disabled="@DisableInputs">
             </div>
             <div class="mb-3">
                 <label for="descripcion" class="form-label">Descripción</label>
-                <textarea class="form-control" id="descripcion" rows="3" disabled="@DisableInputs"></textarea>
+                <textarea @bind="Descripcion" class="form-control" id="descripcion" rows="3" disabled="@DisableInputs"></textarea>
             </div>
-            <span class="btn btn-primary">Aceptar</span>
+            <span class="btn btn-primary" @onclick="Aceptar">Aceptar</span>
             <span class="btn btn-danger" @onclick="btnCancelarClick">Cancelar</span>
         </div>
     </div>
@@ -40,17 +42,23 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>M</td>
-                        <td>
-                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                <span @onclick="btnEditarClick" class="btn btn-outline-warning">Editar</span>
-                                <span @onclick="btnEliminarClick" class="btn btn-outline-danger">Eliminar</span>
-                                <span @onclick="btnVerClick" class="btn btn-outline-primary">Ver</span>
-                            </div>
-                        </td>
-                    </tr>
+                    @if (ProductoList.Count > 0)
+                    {
+                        @foreach (var p in ProductoList)
+                        {
+                            <tr>
+                                <th scope="row">@p.Id</th>
+                                <td>@p.Nombre</td>
+                                <td>
+                                    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                                        <span @onclick="btnEditarClick" class="btn btn-outline-warning">Editar</span>
+                                        <span @onclick="btnEliminarClick" class="btn btn-outline-danger">Eliminar</span>
+                                        <span @onclick="btnVerClick" class="btn btn-outline-primary">Ver</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </div>
@@ -58,7 +66,26 @@ else
 }
 @code {
     string Accion = "Registrar";
+    public string Nombre { get; set; }
+    public string Descripcion { get; set; }
+
+    public List<ProductoDto> ProductoList { get; set; } = new List<ProductoDto>();
     bool ShowForm = false, DisableInputs = false;
+    async Task Consultar()
+    {
+        var result = await service.Get();
+        if (result.Succesd)
+        {
+            ProductoList =
+            result.Data?.ToList()
+            ??
+            new List<ProductoDto>();
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await Consultar();
+    }
 
     public void btnAgregarClick()
     {
@@ -88,5 +115,20 @@ else
     public void btnCancelarClick()
     {
         ShowForm = false;
+    }
+
+    public async Task Aceptar()
+    {
+        if (Accion == "Registrar")
+        {
+            var r = await service.Create(Nombre,Descripcion);
+            if (r.Succesd)
+            {
+                await Consultar();
+                ShowForm = false;
+                Nombre = "";
+                Descripcion = "";
+            }
+        }
     }
 }
