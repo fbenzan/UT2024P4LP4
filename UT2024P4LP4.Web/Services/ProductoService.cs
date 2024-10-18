@@ -1,6 +1,7 @@
 ﻿namespace UT2024P4LP4.Web.Services;
 
 using Microsoft.EntityFrameworkCore;
+using UT2024P4LP4.Web;
 using UT2024P4LP4.Web.Data;
 using UT2024P4LP4.Web.Data.Dtos;
 using UT2024P4LP4.Web.Data.Entities;
@@ -14,11 +15,11 @@ public partial class ProductoService : IProductoService
         this.dbContext = dbContext;
     }
     //CRUD
-    public async Task<Result> Create(string nombre, string? descripcion)
+    public async Task<Result> Create(ProductoRequest producto)
     {
         try
         {
-            var entity = Producto.Create(nombre, descripcion);
+            var entity = Producto.Create(producto.Nombre, producto.Descripcion);
             dbContext.Productos.Add(entity);
             await dbContext.SaveChangesAsync();
             return Result.Success("✅Producto registrado con exito!");
@@ -28,14 +29,14 @@ public partial class ProductoService : IProductoService
             return Result.Failure($"☠️ Error: {Ex.Message}");
         }
     }
-    public async Task<Result> Update(int Id, string nombre, string? descripcion)
+    public async Task<Result> Update(ProductoRequest producto)
     {
         try
         {
-            var entity = dbContext.Productos.Where(p => p.Id == Id).FirstOrDefault();
+            var entity = dbContext.Productos.Where(p => p.Id == producto.Id).FirstOrDefault();
             if (entity == null)
-                return Result.Failure($"El producto '{Id}' no existe!");
-            if (entity.Update(nombre, descripcion))
+                return Result.Failure($"El producto '{producto.Id}' no existe!");
+            if (entity.Update(producto.Nombre, producto.Descripcion))
             {
                 await dbContext.SaveChangesAsync();
                 return Result.Success("✅Producto modificado con exito!");

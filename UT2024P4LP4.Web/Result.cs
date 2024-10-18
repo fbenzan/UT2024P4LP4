@@ -1,4 +1,4 @@
-﻿namespace UT2024P4LP4.Web.Data;
+﻿namespace UT2024P4LP4;
 /// <summary>
 /// Resultado simple
 /// </summary>
@@ -22,7 +22,7 @@ public class Result
 public class Result<T> : Result
 {
     public T? Data { get; set; }
-    public static Result<T> Success(T data,string message = "Ok")
+    public static Result<T> Success(T data, string message = "Ok")
     => new()
     {
         Data = data,

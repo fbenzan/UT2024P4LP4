@@ -1,0 +1,146 @@
+﻿@rendermode InteractiveServer
+@attribute [StreamRendering]
+@page "/productos"
+@* @using Microsoft.AspNetCore.Authorization
+@attribute [Authorize] *@
+
+<h3>Productos</h3>
+@if (ShowForm)
+{
+    @* Formularion de accion*@
+    <div class="card">
+        <h5 class="card-header">@Accion producto</h5>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input @bind-value="MiProducto.Nombre" type="text" class="form-control" id="nombre" placeholder="Nombre" disabled="@DisableInputs">
+            </div>
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción</label>
+                <textarea @bind="MiProducto.Descripcion" class="form-control" id="descripcion" rows="3" disabled="@DisableInputs"></textarea>
+            </div>
+            <span class="btn btn-primary" @onclick="Aceptar">Aceptar</span>
+            <span class="btn btn-danger" @onclick="btnCancelarClick">Cancelar</span>
+        </div>
+    </div>
+}
+else
+{
+    @if (ProductoList != null)
+    {
+        @* Formularion de los registros*@
+        <div class="card mb-3 mt-3">
+            <div class="card-header">
+                <span class="btn btn-success" @onclick="btnAgregarClick">+</span>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ProductoList.Count > 0)
+                        {
+                            @foreach (var p in ProductoList)
+                            {
+                                <tr>
+                                    <th scope="row">@p.Id</th>
+                                    <td>@p.Nombre</td>
+                                    <td>
+                                        <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                                            <span @onclick="()=>btnEditarClick(p)" class="btn btn-outline-warning">Editar</span>
+                                            <span @onclick="()=>btnEliminarClick(p)" class="btn btn-outline-danger">Eliminar</span>
+                                            <span @onclick="()=>btnVerClick(p)" class="btn btn-outline-primary">Ver</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p>Cargando...</p>
+    }
+}
+@code {
+    string Accion = "Registrar";
+    public ProductoRequest MiProducto { get; set; } = new();
+
+    public List<ProductoDto> ProductoList { get; set; }
+    bool ShowForm = false, DisableInputs = false;
+    async Task Consultar()
+    {
+        var result = await service.Get();
+        if (result.Succesd)
+        {
+            ProductoList =
+            result.Data?.ToList()
+            ??
+            new List<ProductoDto>();
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await Consultar();
+    }
+
+    public void btnAgregarClick()
+    {
+        Accion = Constants.Acciones.Registrar;
+        ShowForm = true;
+        StateHasChanged(); 
+        DisableInputs = false;
+    }
+    public void btnEditarClick(ProductoDto dto)
+    {
+        Accion = Constants.Acciones.Modificar; 
+        ShowForm = true; 
+        DisableInputs = false;
+        MiProducto = dto.ToRequest();
+    }
+    public void btnEliminarClick(ProductoDto dto)
+    {
+        Accion = Constants.Acciones.Eliminar;
+        ShowForm = true;
+        DisableInputs = true;
+        MiProducto = dto.ToRequest();
+    }
+    public void btnVerClick(ProductoDto dto)
+    {
+        Accion = Constants.Acciones.Ver;
+        ShowForm = true;
+        DisableInputs = true;
+        MiProducto = dto.ToRequest();
+    }
+    public void btnCancelarClick()
+    {
+        Limpiar();
+    }
+    public void Limpiar()
+    {
+        ShowForm = false;
+        MiProducto = new();
+    }
+    public async Task Aceptar()
+    {
+        Result r =
+        Accion == Constants.Acciones.Registrar ? await service.Create(MiProducto) :
+        Accion == Constants.Acciones.Modificar ? await service.Update(MiProducto) :
+        Accion == Constants.Acciones.Eliminar ? await service.Delete(MiProducto.Id) :
+        Accion == Constants.Acciones.Ver ? Result.Success("") :
+        Result.Failure("Accion no soportada");
+        if (r.Succesd)
+        {
+            await Consultar();
+            Limpiar();
+        }
+    }
+}
