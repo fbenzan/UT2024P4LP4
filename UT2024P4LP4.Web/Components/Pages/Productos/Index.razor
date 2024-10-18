@@ -19,8 +19,11 @@
                 <label for="descripcion" class="form-label">Descripción</label>
                 <textarea @bind="MiProducto.Descripcion" class="form-control" id="descripcion" rows="3" disabled="@DisableInputs"></textarea>
             </div>
-            <span class="btn btn-primary" @onclick="Aceptar">Aceptar</span>
-            <span class="btn btn-danger" @onclick="btnCancelarClick">Cancelar</span>
+            @if(Accion != Constants.Acciones.Ver)
+            {
+                <span class="btn btn-primary" @onclick="Aceptar">Aceptar</span>
+            }
+            <span class="btn btn-danger" @onclick="btnCancelarClick">@(Accion != Constants.Acciones.Ver?"Cancelar":"Salir")</span>
         </div>
     </div>
 }
@@ -71,27 +74,22 @@ else
     }
 }
 @code {
-    string Accion = "Registrar";
+    #region Propiedades del componente Index.Razor
+    public string Accion { get; set; } = "Registrar";
     public ProductoRequest MiProducto { get; set; } = new();
 
-    public List<ProductoDto> ProductoList { get; set; }
+    public List<ProductoDto>? ProductoList { get; set; }
     bool ShowForm = false, DisableInputs = false;
-    async Task Consultar()
-    {
-        var result = await service.Get();
-        if (result.Succesd)
-        {
-            ProductoList =
-            result.Data?.ToList()
-            ??
-            new List<ProductoDto>();
-        }
-    }
+    #endregion Propiedades del componente Index.Razor
+
+    #region Metodos del ciclo de vida de la aplicacion (para este componente)
     protected override async Task OnInitializedAsync()
     {
         await Consultar();
     }
+    #endregion Metodos del ciclo de vida de la aplicacion (para este componente)
 
+    #region Eventos
     public void btnAgregarClick()
     {
         Accion = Constants.Acciones.Registrar;
@@ -124,6 +122,20 @@ else
     {
         Limpiar();
     }
+    #endregion Eventos
+
+    #region Métodos
+    async Task Consultar()
+    {
+        var result = await service.Get();
+        if (result.Succesd)
+        {
+            ProductoList =
+            result.Data?.ToList()
+            ??
+            new List<ProductoDto>();
+        }
+    }
     public void Limpiar()
     {
         ShowForm = false;
@@ -143,4 +155,5 @@ else
             Limpiar();
         }
     }
+    #endregion Métodos
 }
