@@ -19,6 +19,10 @@
                 <label for="descripcion" class="form-label">Descripción</label>
                 <textarea @bind="MiProducto.Descripcion" class="form-control" id="descripcion" rows="3" disabled="@DisableInputs"></textarea>
             </div>
+            <div class="mb-3">
+                <label for="precio" class="form-label">Precio (RD$)</label>
+                <input @bind="MiProducto.Precio" type="text" class="form-control" id="precio" disabled="@DisableInputs"></input>
+            </div>
             @if(Accion != Constants.Acciones.Ver)
             {
                 <span class="btn btn-primary" @onclick="Aceptar">Aceptar</span>
@@ -42,6 +46,8 @@ else
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Nombre</th>
+                            <th scope="col">Categoría</th>
+                            <th scope="col">Precio</th>
                             <th scope="col">Acciones</th>
                         </tr>
                     </thead>
@@ -53,6 +59,8 @@ else
                                 <tr>
                                     <th scope="row">@p.Id</th>
                                     <td>@p.Nombre</td>
+                                    <td>@p.Categoria</td>
+                                    <td>@p.PrecioText</td>
                                     <td>
                                         <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                                             <span @onclick="()=>btnEditarClick(p)" class="btn btn-outline-warning">Editar</span>

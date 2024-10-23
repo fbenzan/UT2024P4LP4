@@ -55,6 +55,11 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+using var scope = app.Services.CreateScope();
+var db = scope.ServiceProvider.GetService<ApplicationDbContext>();
+db!.Database.Migrate();
+ApplicationDbContextSeed.Run(db);
+
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
 

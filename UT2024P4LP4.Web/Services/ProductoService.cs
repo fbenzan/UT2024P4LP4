@@ -19,7 +19,7 @@ public partial class ProductoService : IProductoService
     {
         try
         {
-            var entity = Producto.Create(producto.Nombre, producto.Descripcion);
+            var entity = Producto.Create(producto.Nombre, producto.Descripcion, producto.CategoriaId, producto.Precio);
             dbContext.Productos.Add(entity);
             await dbContext.SaveChangesAsync();
             return Result.Success("✅Producto registrado con exito!");
@@ -36,7 +36,7 @@ public partial class ProductoService : IProductoService
             var entity = dbContext.Productos.Where(p => p.Id == producto.Id).FirstOrDefault();
             if (entity == null)
                 return Result.Failure($"El producto '{producto.Id}' no existe!");
-            if (entity.Update(producto.Nombre, producto.Descripcion))
+            if (entity.Update(producto.Nombre, producto.Descripcion, producto.CategoriaId,producto.Precio))
             {
                 await dbContext.SaveChangesAsync();
                 return Result.Success("✅Producto modificado con exito!");
@@ -69,7 +69,7 @@ public partial class ProductoService : IProductoService
         try
         {
             var entity = await dbContext.Productos.Where(p => p.Id == Id)
-                .Select(p => new ProductoDto(p.Id, p.Nombre, p.Descripcion))
+                .Select(p => new ProductoDto(p.Id, p.Nombre, p.Descripcion, p.CategoriaId,p.Categoria!.Nombre??"No definida", p.Precio))
                 .FirstOrDefaultAsync();
             if (entity == null)
                 return Result<ProductoDto>.Failure($"El producto '{Id}' no existe!");
@@ -87,7 +87,7 @@ public partial class ProductoService : IProductoService
         {
             var entities = await dbContext.Productos
                 .Where(p => p.Nombre.ToLower().Contains(filtro.ToLower()))
-                .Select(p => new ProductoDto(p.Id, p.Nombre, p.Descripcion))
+                .Select(p => new ProductoDto(p.Id, p.Nombre, p.Descripcion, p.CategoriaId, p.Categoria!.Nombre ?? "No definida", p.Precio))
                 .ToListAsync();
             return ResultList<ProductoDto>.Success(entities);
         }
