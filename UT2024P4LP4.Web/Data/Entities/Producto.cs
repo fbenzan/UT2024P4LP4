@@ -9,11 +9,20 @@ public class Producto
     public int Id { get; set; }
     public string Nombre { get; set; } = null!;
     public string? Descripcion { get; set; }
+    public int? CategoriaId { get; set; }
+    [Column(TypeName = "decimal(18,6)")]
+    public decimal Precio { get; set; } = 0;
 
     #region Metodos
-    public static Producto Create(string nombre, string? descripcion = null)
-        => new() { Nombre = nombre, Descripcion = descripcion};
-    public bool Update(string nombre, string? descripcion = null)
+    public static Producto Create(string nombre, string? descripcion = null, int? categoriaId = null, decimal precio = 0)
+        => new() 
+        { 
+            Nombre = nombre, 
+            Descripcion = descripcion, 
+            CategoriaId = categoriaId, 
+            Precio = precio
+        };
+    public bool Update(string nombre, string? descripcion = null, int? categoriaId = null, decimal precio = 0)
     {
         var save = false;
         if(Nombre != nombre)
@@ -24,7 +33,20 @@ public class Producto
         {
             Descripcion = descripcion; save = true;
         }
+        if(CategoriaId != categoriaId)
+        {
+            CategoriaId = categoriaId; save = true;
+        }
+        if(Precio != precio)
+        {
+            Precio = precio; save = true;
+        }
         return save;
     }
     #endregion Metodos
+    #region Relaciones
+    [ForeignKey(nameof(CategoriaId))]
+    public virtual Categoria? Categoria { get; set; }
+    
+    #endregion
 }
