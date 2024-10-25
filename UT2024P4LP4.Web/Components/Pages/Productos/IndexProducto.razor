@@ -20,6 +20,19 @@
                 <textarea @bind="MiProducto.Descripcion" class="form-control" id="descripcion" rows="3" disabled="@DisableInputs"></textarea>
             </div>
             <div class="mb-3">
+                <label for="categoria" class="form-label">Ctegoría</label>
+                <select @bind="@MiProducto.CategoriaId" id="categoria" class="form-select">
+                    <option disabled selected>Seleccione una categoría</option>
+                    @if (Categorias != null)
+                    {
+                        @foreach (var categoria in Categorias)
+                        {
+                            <option value="@categoria.Id">@categoria.Nombre</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
                 <label for="precio" class="form-label">Precio (RD$)</label>
                 <input @bind="MiProducto.Precio" type="text" class="form-control" id="precio" disabled="@DisableInputs"></input>
             </div>
@@ -83,6 +96,7 @@ else
 }
 @code {
     #region Propiedades del componente Index.Razor
+    public List<CategoriaDto> Categorias { get; set; } = new();
     public string Accion { get; set; } = "Registrar";
     public ProductoRequest MiProducto { get; set; } = new();
 
@@ -93,6 +107,7 @@ else
     #region Metodos del ciclo de vida de la aplicacion (para este componente)
     protected override async Task OnInitializedAsync()
     {
+        await ConsultarCategorias();
         await Consultar();
     }
     #endregion Metodos del ciclo de vida de la aplicacion (para este componente)
@@ -133,6 +148,17 @@ else
     #endregion Eventos
 
     #region Métodos
+    async Task ConsultarCategorias()
+    {
+        var result = await categoriaService.GetAll();
+        if (result.Succesd)
+        {
+            Categorias =
+            result.Data?.ToList()
+            ??
+            new List<CategoriaDto>();
+        }
+    }
     async Task Consultar()
     {
         var result = await service.Get();

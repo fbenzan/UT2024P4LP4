@@ -37,6 +37,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddScoped<IProductoService,ProductoService>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
