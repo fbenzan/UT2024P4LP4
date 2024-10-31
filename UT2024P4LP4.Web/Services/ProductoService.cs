@@ -5,7 +5,14 @@ using UT2024P4LP4.Web;
 using UT2024P4LP4.Web.Data;
 using UT2024P4LP4.Web.Data.Dtos;
 using UT2024P4LP4.Web.Data.Entities;
-
+public interface IProductoService
+{
+    Task<Result> Create(ProductoRequest producto);
+    Task<Result> Delete(int Id);
+    Task<ResultList<ProductoDto>> Get(string filtro = "");
+    Task<Result<ProductoDto>> GetById(int Id);
+    Task<Result> Update(ProductoRequest producto);
+}
 public partial class ProductoService : IProductoService
 {
     private readonly IApplicationDbContext dbContext;
