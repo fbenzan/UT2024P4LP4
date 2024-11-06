@@ -19,3 +19,9 @@ public class ProductoRequest
     public int? CategoriaId { get; set; }
     public decimal Precio { get; set; }
 }
+public class CategoriaRequest
+{
+    public int Id { get; set; } = 0;
+    public string Nombre { get; set; } = "";
+}
+

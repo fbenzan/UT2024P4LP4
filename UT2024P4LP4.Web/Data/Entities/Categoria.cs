@@ -14,9 +14,22 @@ public class Categoria
 
     public virtual ICollection<Producto>? Productos { get; set; }
 
+    public static Categoria Create(string nombre)
+    => new() { Nombre = nombre };
+
     public CategoriaDto ToDto() => new()
     {
         Id  = this.Id,
         Nombre = this.Nombre,
     };
+
+    public bool Update(string nombre)
+    {
+        var save = false;
+        if (this.Nombre != nombre) { 
+        this.Nombre = nombre;
+            save = true;
+        }
+        return save;
+    }
 }

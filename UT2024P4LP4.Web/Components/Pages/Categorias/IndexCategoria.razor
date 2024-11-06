@@ -1,46 +1,26 @@
-﻿@rendermode InteractiveServer
+@rendermode InteractiveServer
 @attribute [StreamRendering]
-@page "/productos"
+@page "/categorias"
 @* @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize] *@
 
-<h3 class="d-print-none">Productos</h3>
+<h3 class="d-print-none">Categor�as</h3>
 @if (ShowForm)
 {
     @* Formularion de accion*@
     <div class="card">
-        <h5 class="card-header">@Accion producto</h5>
+        <h5 class="card-header">@Accion categoria</h5>
         <div class="card-body">
             <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre</label>
                 <input @bind-value="MiProducto.Nombre" type="text" class="form-control" id="nombre" placeholder="Nombre" disabled="@DisableInputs">
             </div>
-            <div class="mb-3">
-                <label for="descripcion" class="form-label">Descripción</label>
-                <textarea @bind="MiProducto.Descripcion" class="form-control" id="descripcion" rows="3" disabled="@DisableInputs"></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="categoria" class="form-label">Ctegoría</label>
-                <select @bind="@MiProducto.CategoriaId" id="categoria" class="form-select">
-                    <option disabled selected>Seleccione una categoría</option>
-                    @if (Categorias != null)
-                    {
-                        @foreach (var categoria in Categorias)
-                        {
-                            <option value="@categoria.Id">@categoria.Nombre</option>
-                        }
-                    }
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="precio" class="form-label">Precio (RD$)</label>
-                <input @bind="MiProducto.Precio" type="text" class="form-control" id="precio" disabled="@DisableInputs"></input>
-            </div>
-            @if(Accion != Constants.Acciones.Ver)
+            
+            @if (Accion != Constants.Acciones.Ver)
             {
                 <span class="btn btn-primary" @onclick="Aceptar">Aceptar</span>
             }
-            <span class="btn btn-danger" @onclick="btnCancelarClick">@(Accion != Constants.Acciones.Ver?"Cancelar":"Salir")</span>
+            <span class="btn btn-danger" @onclick="btnCancelarClick">@(Accion != Constants.Acciones.Ver ? "Cancelar" : "Salir")</span>
         </div>
     </div>
 }
@@ -51,7 +31,7 @@ else
         @* Formularion de los registros*@
         <div class="card mb-3 mt-3">
             <div class="card-header">
-                <h1 class="d-none d-print-inline">Reporte de productos</h1>
+                <h1 class="d-none d-print-inline">Reporte de categorias</h1>
                 <div class="d-print-none">
                     <span class="btn btn-success" @onclick="btnAgregarClick">+</span>
                     <PrintButton />
@@ -63,8 +43,6 @@ else
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Nombre</th>
-                            <th scope="col">Categoría</th>
-                            <th scope="col">Precio</th>
                             <th scope="col" class="d-print-none">Acciones</th>
                         </tr>
                     </thead>
@@ -76,13 +54,10 @@ else
                                 <tr>
                                     <th scope="row">@p.Id</th>
                                     <td>@p.Nombre</td>
-                                    <td>@p.Categoria</td>
-                                    <td>@p.PrecioText</td>
                                     <td class="d-print-none">
                                         <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                                             <span @onclick="()=>btnEditarClick(p)" class="btn btn-outline-warning">Editar</span>
                                             <span @onclick="()=>btnEliminarClick(p)" class="btn btn-outline-danger">Eliminar</span>
-                                            <span @onclick="()=>btnVerClick(p)" class="btn btn-outline-primary">Ver</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -102,16 +77,15 @@ else
     #region Propiedades del componente Index.Razor
     public List<CategoriaDto> Categorias { get; set; } = new();
     public string Accion { get; set; } = "Registrar";
-    public ProductoRequest MiProducto { get; set; } = new();
+    public CategoriaRequest MiProducto { get; set; } = new();
 
-    public List<ProductoDto>? ProductoList { get; set; }
+    public List<CategoriaDto>? ProductoList { get; set; }
     bool ShowForm = false, DisableInputs = false;
     #endregion Propiedades del componente Index.Razor
 
     #region Metodos del ciclo de vida de la aplicacion (para este componente)
     protected override async Task OnInitializedAsync()
     {
-        await ConsultarCategorias();
         await Consultar();
     }
     #endregion Metodos del ciclo de vida de la aplicacion (para este componente)
@@ -121,24 +95,24 @@ else
     {
         Accion = Constants.Acciones.Registrar;
         ShowForm = true;
-        StateHasChanged(); 
+        StateHasChanged();
         DisableInputs = false;
     }
-    public void btnEditarClick(ProductoDto dto)
+    public void btnEditarClick(CategoriaDto dto)
     {
-        Accion = Constants.Acciones.Modificar; 
-        ShowForm = true; 
+        Accion = Constants.Acciones.Modificar;
+        ShowForm = true;
         DisableInputs = false;
         MiProducto = dto.ToRequest();
     }
-    public void btnEliminarClick(ProductoDto dto)
+    public void btnEliminarClick(CategoriaDto dto)
     {
         Accion = Constants.Acciones.Eliminar;
         ShowForm = true;
         DisableInputs = true;
         MiProducto = dto.ToRequest();
     }
-    public void btnVerClick(ProductoDto dto)
+    public void btnVerClick(CategoriaDto dto)
     {
         Accion = Constants.Acciones.Ver;
         ShowForm = true;
@@ -151,27 +125,16 @@ else
     }
     #endregion Eventos
 
-    #region Métodos
-    async Task ConsultarCategorias()
-    {
-        var result = await categoriaService.GetAll();
-        if (result.Succesd)
-        {
-            Categorias =
-            result.Data?.ToList()
-            ??
-            new List<CategoriaDto>();
-        }
-    }
+    #region M�todos
     async Task Consultar()
     {
-        var result = await service.Get();
+        var result = await service.GetAll();
         if (result.Succesd)
         {
             ProductoList =
             result.Data?.ToList()
             ??
-            new List<ProductoDto>();
+            new List<CategoriaDto>();
         }
     }
     public void Limpiar()
@@ -185,7 +148,7 @@ else
         Accion == Constants.Acciones.Registrar ? await service.Create(MiProducto) :
         Accion == Constants.Acciones.Modificar ? await service.Update(MiProducto) :
         Accion == Constants.Acciones.Eliminar ? await service.Delete(MiProducto.Id) :
-        Accion == Constants.Acciones.Ver ? Result.Success("") :
+        Result.Success("");
         Result.Failure("Accion no soportada");
         if (r.Succesd)
         {
@@ -193,5 +156,5 @@ else
             Limpiar();
         }
     }
-    #endregion Métodos
+    #endregion M�todos
 }

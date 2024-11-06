@@ -1,0 +1,12 @@
+﻿@inject IJSRuntime js;
+<span 
+    class="btn btn-outline-info" 
+    @onclick="btnPrintClick">
+    Imprimir</span>
+
+@code {
+    async Task btnPrintClick()
+    {
+        await js.InvokeVoidAsync("PrintPage");
+    }
+}
